@@ -58,6 +58,9 @@ Cada ticket es una clase nueva en `Assets/Scripts/Tickets/`, y las 7 pruebas deb
 
 ## Tickets
 
+Cada ticket cierra con una o dos preguntas *Para pensar* sobre lo que acabas de implementar. Contéstalas
+antes de pasar al siguiente: son las que se discuten al final de la clase.
+
 ### T0 · Refactorizar a interfaces
 
 Crea las dos interfaces en `Assets/Scripts/Tickets/`. Las firmas son el contrato: deben quedar exactamente así.
@@ -85,6 +88,13 @@ public interface IDamageable
 **Listo cuando** ninguno de los dos archivos contiene `CompareTag`, las 7 pruebas pasan y el juego se comporta igual
 que antes.
 
+**Para pensar**
+
+1. Después de T0, si quisieras agregar un botón que se usa con E, ¿cuántas líneas de `PlayerInteractor` tendrías que
+   cambiar? ¿Por qué?
+2. `Door` no usa el parámetro `player` de `Interact(Player player)`. ¿Por qué está en la firma de la interfaz de todas
+   formas?
+
 ### T1 · FuelCell
 
 `FuelCell : MonoBehaviour, IInteractable`
@@ -97,6 +107,13 @@ que antes.
 
 **Listo cuando** al tomar la celda suelta desaparece, y el HUD muestra `- Fuel cell (40%)` y `Total charge: 40%`.
 
+**Para pensar**
+
+1. `FuelCell` no aparece en ninguna línea de `PlayerInteractor`, y aun así la etiqueta dice "Pick up fuel cell (40%)".
+   Sigue el camino: ¿quién llama a `Prompt()`, y cómo sabe que puede hacerlo?
+2. `charge` es `private` con `[SerializeField]`, no `public`. ¿Qué podría hacer otro script si fuera `public`, y por qué
+   no quieres eso?
+
 ### T2 · Generator
 
 `Generator : MonoBehaviour, IInteractable`, en el objeto `Generator` de la sala norte.
@@ -107,6 +124,11 @@ que antes.
 - `Prompt()` muestra la carga acumulada.
 
 **Listo cuando** con las tres celdas (105%) la consola de comunicaciones se enciende, y E sobre ella gana el juego.
+
+**Para pensar**
+
+1. `Generator` guarda una `Terminal`, no una interfaz. Si mañana el generador también tuviera que abrir una puerta, ¿qué
+   archivo tendrías que editar y qué le agregarías? (Pista: el reto S1.)
 
 ### T3 · SupplyCrate: una clase, dos interfaces
 
@@ -120,6 +142,13 @@ que antes.
 **Listo cuando** E abre la caja y la celda aparece; en otra partida, dispararle también la abre. Con T1, T2 y T3 el
 juego ya se puede ganar.
 
+**Para pensar**
+
+1. `SupplyCrate` implementa dos interfaces. ¿Por qué no podría heredar de dos clases, por ejemplo de `Door` y de
+   `AlienGrowth`?
+2. Abrir con E y abrir a disparos terminan igual. ¿Dónde quedó ese código? ¿Qué pasaría si lo copiaras en `Interact` y
+   en `TakeDamage`, y después hubiera que cambiarlo?
+
 ### T4 · AlienEgg, y la ingeniera se vuelve IDamageable
 
 1. `Player` (en `Scripts/Core`) implementa `IDamageable`: cada punto de daño quita un segundo de oxígeno con
@@ -131,6 +160,12 @@ juego ya se puede ganar.
 
 **Listo cuando** junto a un huevo el oxígeno baja más rápido, y dos disparos de pistola lo matan.
 
+**Para pensar**
+
+1. Las esporas buscan `Player`, no `IDamageable`. ¿Qué cambiaría en el juego si buscaran `IDamageable`?
+2. La ingeniera pierde oxígeno y un huevo pierde vida: reaccionan muy distinto. ¿Qué tienen en común que justifica que
+   los dos sean `IDamageable`?
+
 ### T5 · ExplosiveBarrel y la reacción en cadena
 
 `ExplosiveBarrel : MonoBehaviour, IDamageable`, con 10 de vida. Al llegar a 0 explota: hace 25 de daño a todo lo que
@@ -141,6 +176,13 @@ sea `IDamageable` a 3 m o menos (`Physics.OverlapSphere` y `GetComponentInParent
 **Listo cuando** un disparo de pistola a cualquier barril de la sala norte hace explotar los tres y elimina los 5 huevos
 del nido.
 Si estás a 3 m o menos de la explosión, pierdes 25 s de oxígeno.
+
+**Para pensar**
+
+1. Haz la lista de lo que una explosión puede alcanzar y de lo que le pasa a cada cosa. ¿Cuántos `if` escribiste en
+   `ExplosiveBarrel` para que cada una reaccione distinto?
+2. Imagina que quitas lo que evita que un barril explote dos veces, y sigue la cadena con dos barriles, A y B, paso a
+   paso. ¿Dónde termina?
 
 ### T6 · Gun: una clase abstracta
 
@@ -181,6 +223,12 @@ lo que solo usa la subclase (el daño, el alcance) son campos de la subclase.
 **Listo cuando** `PlayerShooter` no menciona daño, alcance ni rayos, la pistola funciona igual que antes y las 7
 pruebas pasan.
 
+**Para pensar**
+
+1. `Gun` es una clase abstracta e `IDamageable` es una interfaz. ¿Por qué no al revés? Da una razón para cada una.
+2. `Name`, `SecondsBetweenShots` y `Fire` son abstractos, pero el daño y el alcance son campos de `Handgun`. ¿Con qué
+   criterio se decide qué va en `Gun` y qué se queda en la subclase?
+
 ### T7 · Shotgun
 
 `Shotgun : Gun`, en el objeto `Shotgun` que está en el piso de la sala norte.
@@ -193,6 +241,13 @@ pruebas pasan.
 
 **Listo cuando** E recoge la escopeta, 1 y 2 cambian de arma, y dos disparos de escopeta queman el crecimiento
 alienígena (la pistola necesita cuatro).
+
+**Para pensar**
+
+1. ¿Qué archivos tocaste además de `Shotgun.cs`? Haz la lista de lo que la escopeta hace sin que lo hayas escrito tú, y
+   de dónde viene cada cosa.
+2. Para estas dos armas bastaría un campo `pellets` en una sola clase. ¿Qué arma nueva haría que la herencia valga la
+   pena de verdad, y qué método tendría que cambiar?
 
 ## Retos extra
 
