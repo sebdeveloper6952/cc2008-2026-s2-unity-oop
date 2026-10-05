@@ -1,0 +1,47 @@
+# Unity: generated folders
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+/Screenshots/
+
+# Unity: builds, exports and debug symbols
+*.apk
+*.aab
+*.app
+*.unitypackage
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+sysinfo.txt
+crashlytics-build.properties
+
+# IDEs
+.vs/
+.idea/
+.vscode/
+*.csproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test reports
+TestResults*.xml
+
+# Instructor-only: level builder, capture tools and notes. They stay on the instructor's
+# machine and never reach the students' repo.
+/Assets/Instructor/
+/Assets/Instructor.meta
+/INSTRUCTOR.md
