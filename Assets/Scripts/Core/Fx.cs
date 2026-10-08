@@ -1,7 +1,8 @@
 using System.Collections;
 using UnityEngine;
 
-// Ready-made visual effects: Fx.Laser(...), Fx.Spark(...), Fx.Explosion(...), Fx.Ping(...).
+// Ready-made effects: Fx.Laser(...), Fx.Spark(...), Fx.Explosion(...), Fx.Ping(...).
+// Every laser also plays a zap, once per frame, so a shotgun blast sounds like one shot.
 // No need to understand how they work inside.
 public class Fx : MonoBehaviour
 {
@@ -10,9 +11,16 @@ public class Fx : MonoBehaviour
     [SerializeField] Material laserMaterial;
     [SerializeField] Material particleMaterial;
 
+    AudioSource speaker;
+    AudioClip zap;
+    int lastZapFrame = -1;
+
     void Awake()
     {
         instance = this;
+        speaker = gameObject.AddComponent<AudioSource>();
+        speaker.playOnAwake = false;
+        zap = MakeZap();
     }
 
     public static void Laser(Vector3 from, Vector3 to)
@@ -27,6 +35,7 @@ public class Fx : MonoBehaviour
         line.endWidth = 0.03f;
         line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         instance.StartCoroutine(FadeLine(line, 0.08f));
+        instance.PlayZap();
     }
 
     public static void Spark(Vector3 at)
@@ -49,6 +58,37 @@ public class Fx : MonoBehaviour
     }
 
     // ------------------------------------------------------------ internals
+
+    // Six pellets in the same frame make one sound, not six.
+    void PlayZap()
+    {
+        if (Time.frameCount == lastZapFrame) return;
+        lastZapFrame = Time.frameCount;
+        speaker.PlayOneShot(zap, 0.5f);
+    }
+
+    // A short laser zap built in code, so the project needs no audio files:
+    // a tone that falls from 1700 Hz to 180 Hz, with a burst of noise at the start.
+    static AudioClip MakeZap()
+    {
+        const int rate = 44100;
+        int samples = (int)(rate * 0.16f);
+        var data = new float[samples];
+        var noise = new System.Random(13);
+        float phase = 0f;
+        for (int i = 0; i < samples; i++)
+        {
+            float t = (float)i / samples;
+            phase += 2f * Mathf.PI * Mathf.Lerp(1700f, 180f, Mathf.Sqrt(t)) / rate;
+            float tone = Mathf.Sin(phase) + 0.3f * Mathf.Sign(Mathf.Sin(phase));
+            float crack = t < 0.12f ? (float)(noise.NextDouble() * 2.0 - 1.0) * (1f - t / 0.12f) : 0f;
+            float envelope = Mathf.Min(1f, i / (rate * 0.002f)) * Mathf.Exp(-5f * t);
+            data[i] = 0.5f * envelope * (0.8f * tone + 0.4f * crack);
+        }
+        var clip = AudioClip.Create("Zap", samples, 1, rate, false);
+        clip.SetData(data, 0);
+        return clip;
+    }
 
     static void Burst(Vector3 at, int count, float speed, float size, float life, Color start, Color end, float light)
     {
